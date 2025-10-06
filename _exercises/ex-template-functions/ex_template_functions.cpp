@@ -136,21 +136,19 @@ namespace ExplainStd
         return container.size();
     }
 
-
-
-    template<typename T, size_t N>
+    template <typename T, size_t N>
     T* begin(T (&arr)[N])
     {
         return arr;
     }
 
-    template<typename T, size_t N>
+    template <typename T, size_t N>
     T* end(T (&arr)[N])
     {
         return arr + N;
     }
 
-    template<typename T, size_t N>
+    template <typename T, size_t N>
     size_t size(T (&arr)[N])
     {
         return N;
@@ -212,35 +210,59 @@ TEST_CASE("my accumulate")
 
 namespace TODO
 {
-    // TODO: zero
+    template <typename TContainer>
+    void zero(TContainer& container)
+    {
+        using T = std::decay_t<decltype(*begin(container))>;
+
+        for(auto&& item : container)
+        {
+            item = T{};
+        }
+
+        // is interpreted as:
+        // for(auto it = begin(container); it != end(container); ++it)
+        // {
+        //     auto&& item = *it;
+        //     item = T{};
+        // }
+    }
 }
 
-// TEST_CASE("zero")
-// {
-//     using namespace TODO;
+TEST_CASE("zero")
+{
+    using namespace TODO;
 
-//     SECTION("vector of ints")
-//     {
-//         std::vector<int> numbers{1, 2, 3, 4};
-//         zero(numbers);
+    SECTION("vector of ints")
+    {
+        std::vector<int> numbers{1, 2, 3, 4};
+        zero(numbers);
 
-//         REQUIRE(numbers == std::vector{0, 0, 0, 0});
-//     }
+        REQUIRE(numbers == std::vector{0, 0, 0, 0});
+    }
 
-//     SECTION("array of chars")
-//     {
-//         int buffer[10] = {1, 2, 3, 4};
-//         zero(buffer);
+    SECTION("vector of bool")
+    {
+        std::vector<bool> flags{true, false, false, true, true};
+        zero(flags);
 
-//         REQUIRE(std::ranges::all_of(buffer, [](char b) { return b == 0; }));
-//     }
+        REQUIRE(flags == std::vector<bool>{false, false, false, false, false});
+    }
 
-//     SECTION("list of strings")
-//     {
-//         std::list<std::string> words = { "one", "two", "three" };
+    SECTION("array of chars")
+    {
+        uint8_t buffer[10] = {1, 2, 3, 4};
+        zero(buffer);
 
-//         zero(words);
+        REQUIRE(std::ranges::all_of(buffer, [](char b) { return b == 0; }));
+    }
 
-//         REQUIRE(words == std::list{""s, ""s, ""s});
-//     }
-// }
+    SECTION("list of strings")
+    {
+        std::list<std::string> words = { "one", "two", "three" };
+
+        zero(words);
+
+        REQUIRE(words == std::list{""s, ""s, ""s});
+    }
+}

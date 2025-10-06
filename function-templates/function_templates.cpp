@@ -1,4 +1,5 @@
 #include <catch2/catch_test_macros.hpp>
+#include <functional>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -200,4 +201,45 @@ TEST_CASE("Choosing return types")
         short sx = 22;
         auto result = ReturnTypes::DefaultParam::max_value<int, short, short>(x, sx);
     }
+}
+
+///////////////////////////////////
+// C++20 - auto + templates
+auto multiply(auto a, auto b)
+{
+    decltype(a) target{};
+
+    return a + b;
+}
+
+namespace IsIterpretedAs
+{
+    template <typename T1, typename T2>
+    auto multiply(T1 a, T2 b)
+    {
+        T1 target{};
+        return a + b;
+    }
+} // namespace IsIterpretedAs
+
+//////////////////////////////////////
+// passing function to function
+
+template <typename TFunction>
+void call(TFunction f, int arg)
+{
+    f(arg);
+}
+
+void foo(int arg)
+{
+    std::cout << std::format("foo({})\n", arg);
+}
+
+TEST_CASE("passing function to function")
+{
+    call(foo, 42);
+
+    int local = 665;
+    call([local](int x) { std::cout << std::format("lambda[{}]({})\n", local, x); }, 42);
 }

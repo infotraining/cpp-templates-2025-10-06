@@ -244,7 +244,8 @@ void call(TFunction f, int arg)
 
 void foo(int arg)
 {
-    std::cout << std::format("foo({})\n", arg);
+    // std::cout << std::format("foo({})\n", arg);
+    std::cout << "foo(" << arg << ")\n";
 }
 
 TEST_CASE("passing function to function")

@@ -132,9 +132,27 @@ TEST_CASE("passing by ref")
     REQUIRE("text!!!");
 }
 
-
+template <typename TContainer>
+decltype(auto) get_nth(TContainer& container, size_t index)
+{
+    return container[index]; // now decltype(container[index]) is returned as a type from function
+}
 
 TEST_CASE("decltype(auto)")
 {
+    std::vector<std::string> words = {"one", "two", "three"};
+    REQUIRE(get_nth(words, 1) == "two");
 
+    get_nth(words, 0) = "jeden";
+    REQUIRE(words[0] == "jeden");
+
+    int tab[] = {1, 2, 3, 4, 5};
+    REQUIRE(get_nth(tab, 3) == 4);
+
+    std::vector<bool> flags = {true, false, true, false};
+    get_nth(flags, 2) = false;
+
+    REQUIRE(flags[2] == false);
+
+    decltype(auto) nth_item = get_nth(flags, 0);
 }

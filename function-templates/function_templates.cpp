@@ -237,9 +237,9 @@ namespace IsIterpretedAs
 // passing function to function
 
 template <typename TFunction>
-void call(TFunction f, int arg)
+decltype(auto) call(TFunction f, int arg)
 {
-    f(arg);
+    return f(arg);
 }
 
 void foo(int arg)

@@ -18,32 +18,32 @@ namespace TODO
 
 TEST_CASE("my find if")
 {
-//     SECTION("happy path")
-//     {
-//         vector<int> vec = {1, 2, 3, 4, 665, 124, 4, 55, 234};
+    // SECTION("happy path")
+    // {
+    //     vector<int> vec = {1, 2, 3, 4, 665, 124, 4, 55, 234};
 
-//         auto is_lesser_evil = [](int x) {
-//             return x == 665;
-//         };
+    //     auto is_lesser_evil = [](int x) {
+    //         return x == 665;
+    //     };
 
-//         auto pos = TODO::find_if(begin(vec), end(vec), is_lesser_evil);
+    //     auto pos = TODO::find_if(begin(vec), end(vec), is_lesser_evil);
 
-//         REQUIRE(pos != end(vec));
-//         REQUIRE(*pos == 665);
-//     }
+    //     REQUIRE(pos != end(vec));
+    //     REQUIRE(*pos == 665);
+    // }
 
-//     SECTION("sad path")
-//     {
-//         vector<int> vec = {1, 2, 3, 4, 124, 4, 55, 234};
+    // SECTION("sad path")
+    // {
+    //     vector<int> vec = {1, 2, 3, 4, 124, 4, 55, 234};
 
-//         auto is_lesser_evil = [](int x) {
-//             return x == 665;
-//         };
+    //     auto is_lesser_evil = [](int x) {
+    //         return x == 665;
+    //     };
 
-//         auto pos = TODO::find_if(begin(vec), end(vec), is_lesser_evil);
+    //     auto pos = TODO::find_if(begin(vec), end(vec), is_lesser_evil);
 
-//         REQUIRE(pos == end(vec));
-//     }
+    //     REQUIRE(pos == end(vec));
+    // }
 }
 
 namespace TODO
@@ -74,4 +74,9 @@ TEST_CASE("my accumulate")
 
     //     REQUIRE(result == "Text: onetwothree");
     // }
+}
+
+TEST_CASE("zero")
+{
+
 }

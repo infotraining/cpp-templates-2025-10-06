@@ -212,6 +212,17 @@ auto multiply(auto a, auto b)
     return a + b;
 }
 
+template <typename TResult>
+TResult add(auto a, auto b)
+{
+    return a + b;
+}
+
+TEST_CASE("hybrid template function")
+{
+    auto result = add<double>(42, 665);
+}
+
 namespace IsIterpretedAs
 {
     template <typename T1, typename T2>
@@ -241,5 +252,5 @@ TEST_CASE("passing function to function")
     call(foo, 42);
 
     int local = 665;
-    call([local](int x) { std::cout << std::format("lambda[{}]({})\n", local, x); }, 42);
+    call([local](int x) { std::cout << "lambda[" << local << "](" << x << ")\n"; }, 42);
 }

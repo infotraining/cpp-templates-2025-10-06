@@ -15,8 +15,8 @@ using TODO = void;
 int main()
 {
 
-    // auto a1 = x;
-    // static_assert(is_same<TODO, decltype(a1)>::value, "Error");
+    auto a1 = x;
+    static_assert(is_same<int, decltype(a1)>::value, "Error");
 
     // auto a2 = &x;
     // static_assert(is_same<TODO, decltype(a2)>::value, "Error");

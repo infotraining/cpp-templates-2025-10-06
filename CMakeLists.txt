@@ -42,7 +42,7 @@ include(Catch)
 add_subdirectory(function-templates)
 add_subdirectory(class-templates)
 add_subdirectory(concepts)
-add_subdirectory(policy-based-design)`
+add_subdirectory(policy-based-design)
 add_subdirectory(sfinae)
 add_subdirectory(traits-and-policies)
 add_subdirectory(type-deduction)

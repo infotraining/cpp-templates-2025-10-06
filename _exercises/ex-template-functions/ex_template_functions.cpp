@@ -8,6 +8,7 @@
 #include <numeric>
 #include <string>
 #include <vector>
+#include <array>
 
 using namespace std;
 
@@ -213,7 +214,7 @@ namespace TODO
     template <typename TContainer>
     void zero(TContainer& container)
     {
-        using T = std::decay_t<decltype(*begin(container))>;
+        using T = typename TContainer::value_type;
 
         for(auto&& item : container)
         {
@@ -251,7 +252,7 @@ TEST_CASE("zero")
 
     SECTION("array of chars")
     {
-        uint8_t buffer[10] = {1, 2, 3, 4};
+        std::array buffer = {1, 2, 3, 4};
         zero(buffer);
 
         REQUIRE(std::ranges::all_of(buffer, [](char b) { return b == 0; }));

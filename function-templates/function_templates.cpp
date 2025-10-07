@@ -236,10 +236,10 @@ namespace IsIterpretedAs
 //////////////////////////////////////
 // passing function to function
 
-template <typename TFunction>
-decltype(auto) call(TFunction f, int arg)
+template <typename TFunction, typename TArg>
+decltype(auto) call(TFunction&& f, TArg&& arg)
 {
-    return f(arg);
+    return f(std::forward<TArg>(arg));
 }
 
 void foo(int arg)

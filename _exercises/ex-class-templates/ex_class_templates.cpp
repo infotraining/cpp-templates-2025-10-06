@@ -34,7 +34,7 @@ public:
     template <typename TRange>
     Stack(const TRange& range)
     {
-        for(const auto& item : range)
+        for (const auto& item : range)
             push(item);
     }
 
@@ -45,7 +45,7 @@ public:
         return container.size();
     }
 
-    reference top() 
+    reference top()
     {
         return container.back();
     }
@@ -63,7 +63,7 @@ public:
 
     // void push(const T& value)
     // {
-    //     container.push_back(value); // copy value into container 
+    //     container.push_back(value); // copy value into container
     // }
 
     // void push(T&& value)
@@ -91,9 +91,75 @@ static_assert(std::is_same_v<Stack<int, std::vector<int>>::container_type, std::
 // template class Stack<int>;
 // template class Stack<std::string>;
 
+namespace TemplateTemplateParams
+{
+    template <
+        typename T,
+        template <typename, typename> class Container = std::deque,
+        typename TAllocator = std::allocator<T>>
+    class Stack
+    {
+        Container<T, TAllocator> container;
+
+    public:
+    public:
+        using container_type = Container<T, TAllocator>;
+        using reference = T&;
+        using const_reference = const T&;
+        using value_type = T;
+
+        Stack() = default;
+
+        template <typename TRange>
+        Stack(const TRange& range)
+        {
+            for (const auto& item : range)
+                push(item);
+        }
+
+        bool empty() const;
+
+        size_t size() const
+        {
+            return container.size();
+        }
+
+        reference top()
+        {
+            return container.back();
+        }
+
+        const_reference top() const
+        {
+            return container.back();
+        }
+
+        template <typename TArg>
+        void push(TArg&& value) // universal reference
+        {
+            container.push_back(std::forward<TArg>(value));
+        }
+
+        void pop(T& value)
+        {
+            value = std::move_if_noexcept(container.back());
+            container.pop_back();
+        }
+    };
+
+    template <
+        typename T,
+        template <typename, typename> class Container,
+        typename TAllocator>
+    bool Stack<T, Container, TAllocator>::empty() const
+    {
+        return container.empty();
+    }
+} // namespace TemplateTemplateParams
+
 TEST_CASE("After construction", "[stack]")
 {
-    Stack<int> s;
+    TemplateTemplateParams::Stack<int, std::vector> s;
 
     SECTION("is empty")
     {
@@ -213,4 +279,18 @@ TEST_CASE("Construct from range")
 
     REQUIRE(stack.size() == 4);
     REQUIRE(stack.top() == 42);
+}
+
+template <typename T>
+inline constexpr T pi = 3.141592653589793238;
+
+// template <>
+// inline constexpr int pi<int> = 3;
+
+TEST_CASE("pi as template variable")
+{
+    std::cout << pi<double> << "\n";
+    std::cout << pi<float> << "\n";
+
+    std::cout << pi<int> << "\n";
 }

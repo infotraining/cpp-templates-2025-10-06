@@ -1,5 +1,9 @@
 # Szkolenie - Programowanie generyczne w C++ #
 
+## Ankieta
+
+* https://forms.gle/inyf6S45z7CLbaSb8
+
 ## Dokumentacja + slajdy
 
 * https://cpp-templates.infotraining.pl

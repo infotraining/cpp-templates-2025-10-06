@@ -22,15 +22,21 @@ Iterator concept
 constexpr static bool TODO = false;
 
 template <typename I>
-concept Iterator = TODO;
+concept Iterator = requires(I it) {
+    *it;
+    { ++it } -> std::same_as<I&>;
+    it++;
+    it == it;
+    it != it;
+};
 
 TEST_CASE("Iterator")
 {
-    // static_assert(Iterator<int*>);
-    // static_assert(Iterator<const int*>);
-    // static_assert(Iterator<std::vector<int>::iterator>);
-    // static_assert(Iterator<std::vector<int>::const_iterator>);
-    // static_assert(Iterator<std::forward_list<int>::const_iterator>);
+    static_assert(Iterator<int*>);
+    static_assert(Iterator<const int*>);
+    static_assert(Iterator<std::vector<int>::iterator>);
+    static_assert(Iterator<std::vector<int>::const_iterator>);
+    static_assert(Iterator<std::forward_list<int>::const_iterator>);
 }
 
 /*********************
@@ -43,20 +49,26 @@ StdContainer concept
 **********************/
 
 template <typename Container>
-concept StdContainer = TODO;
+concept StdContainer = requires(Container& c) {
+    { std::begin(c) } -> Iterator;
+    { std::end(c) } -> Iterator;
+    typename Container::iterator;
+    typename Container::const_iterator;
+    typename Container::value_type;
+};
 
 TEST_CASE("StdContainer")
 {
-    // static_assert(StdContainer<std::vector<int>>);
-    // static_assert(StdContainer<std::list<int>>);
-    // static_assert(StdContainer<std::set<int>>);
-    // static_assert(StdContainer<std::map<int, std::string>>);
-    // static_assert(StdContainer<std::unordered_map<int, int>>);
-    // static_assert(StdContainer<std::vector<bool>>);
-    // static_assert(StdContainer<std::string>);
+    static_assert(StdContainer<std::vector<int>>);
+    static_assert(StdContainer<std::list<int>>);
+    static_assert(StdContainer<std::set<int>>);
+    static_assert(StdContainer<std::map<int, std::string>>);
+    static_assert(StdContainer<std::unordered_map<int, int>>);
+    static_assert(StdContainer<std::vector<bool>>);
+    static_assert(StdContainer<std::string>);
 
-    // int arr[32];
-    // static_assert(!StdContainer<decltype(arr)>);
+    int arr[32];
+    static_assert(!StdContainer<decltype(arr)>);
 }
 
 /*********************
@@ -80,7 +92,6 @@ TEST_CASE("Indexable")
     // static_assert(!Indexable<std::list<int>>);
     // static_assert(!Indexable<std::set<int>>);
 }
-
 
 /*********************
 IndexableStdContainer concept

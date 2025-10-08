@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <array>
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
 #include <functional>
@@ -8,25 +9,46 @@
 #include <numeric>
 #include <string>
 #include <vector>
-#include <array>
 
 using namespace std;
 
 namespace TODO
 {
-    template <typename InputIterator, typename Predicate>
-    InputIterator find_if(InputIterator begin, InputIterator end, Predicate pred)
-    // requirements: bool pred(TValue value)
+    namespace Unconstrained
     {
-        for (auto it = begin; it != end; ++it)
+        template <typename InputIterator, typename Predicate>
+        InputIterator find_if(InputIterator begin, InputIterator end, Predicate pred)
+        // requirements: bool pred(TValue value)
         {
-            if (pred(*it))
+            for (auto it = begin; it != end; ++it)
             {
-                return it;
+                if (pred(*it))
+                {
+                    return it;
+                }
             }
+            return end;
         }
-        return end;
-    }
+    } // namespace Unconstrained
+
+    inline namespace Constrained
+    {
+        template <typename F, typename It>
+        concept AlgorithmPredicate = std::predicate<F, typename std::iterator_traits<It>::value_type>;
+
+        template <std::input_iterator It, AlgorithmPredicate<It> Predicate>
+        It find_if(It begin, It end, Predicate pred)
+        {
+            for (auto it = begin; it != end; ++it)
+            {
+                if (pred(*it))
+                {
+                    return it;
+                }
+            }
+            return end;
+        }
+    } // namespace Constrained
 } // namespace TODO
 
 TEST_CASE("my find if")
@@ -235,11 +257,9 @@ namespace TODO
     static_assert(is_same_v<RangeValue_t<int[10]>, int>);
 
     template <typename TContainer>
-    inline constexpr bool is_memset_friendly = std::contiguous_iterator<Iterator_t<TContainer>> &&
-                std::is_trivially_copyable_v<RangeValue_t<TContainer>>;
+    inline constexpr bool is_memset_friendly = std::contiguous_iterator<Iterator_t<TContainer>> && std::is_trivially_copyable_v<RangeValue_t<TContainer>>;
 
-    enum class Implementation
-    {
+    enum class Implementation {
         Generic,
         Optimized
     };
@@ -249,21 +269,20 @@ namespace TODO
     {
         using T = RangeValue_t<TContainer>;
 
-        if constexpr(is_memset_friendly<TContainer>)
+        if constexpr (is_memset_friendly<TContainer>)
         {
             std::memset(std::data(container), 0, sizeof(T) * std::size(container));
             return Implementation::Optimized;
         }
         else
         {
-            for(auto&& item : container)
+            for (auto&& item : container)
             {
                 item = T{};
             }
-    
+
             return Implementation::Generic;
         }
-
 
         // is interpreted as:
         // for(auto it = begin(container); it != end(container); ++it)
@@ -272,7 +291,7 @@ namespace TODO
         //     item = T{};
         // }
     }
-}
+} // namespace TODO
 
 TEST_CASE("zero")
 {
@@ -304,7 +323,7 @@ TEST_CASE("zero")
 
     SECTION("list of strings")
     {
-        std::list<std::string> words = { "one", "two", "three" };
+        std::list<std::string> words = {"one", "two", "three"};
         REQUIRE(zero(words) == Implementation::Generic);
 
         REQUIRE(words == std::list{""s, ""s, ""s});

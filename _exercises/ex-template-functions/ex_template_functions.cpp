@@ -211,15 +211,59 @@ TEST_CASE("my accumulate")
 
 namespace TODO
 {
-    template <typename TContainer>
-    void zero(TContainer& container)
+    template <typename TRange>
+    struct Iterator
     {
-        using T = typename TContainer::value_type;
+        using type = decltype(std::begin(std::declval<TRange&>()));
+    };
 
-        for(auto&& item : container)
+    template <typename TRange>
+    using Iterator_t = typename Iterator<TRange>::type;
+
+    template <typename TRange>
+    struct RangeValue
+    {
+        using type = typename std::iterator_traits<Iterator_t<TRange>>::value_type;
+    };
+
+    template <typename TRange>
+    using RangeValue_t = typename RangeValue<TRange>::type;
+
+    static_assert(is_same_v<RangeValue_t<vector<int>>, int>);
+    static_assert(is_same_v<RangeValue_t<list<string>>, string>);
+    static_assert(is_same_v<RangeValue_t<array<double, 5>>, double>);
+    static_assert(is_same_v<RangeValue_t<int[10]>, int>);
+
+    template <typename TContainer>
+    inline constexpr bool is_memset_friendly = std::contiguous_iterator<Iterator_t<TContainer>> &&
+                std::is_trivially_copyable_v<RangeValue_t<TContainer>>;
+
+    enum class Implementation
+    {
+        Generic,
+        Optimized
+    };
+
+    template <typename TContainer>
+    Implementation zero(TContainer& container)
+    {
+        using T = RangeValue_t<TContainer>;
+
+        if constexpr(is_memset_friendly<TContainer>)
         {
-            item = T{};
+            std::memset(std::data(container), 0, sizeof(T) * std::size(container));
+            return Implementation::Optimized;
         }
+        else
+        {
+            for(auto&& item : container)
+            {
+                item = T{};
+            }
+    
+            return Implementation::Generic;
+        }
+
 
         // is interpreted as:
         // for(auto it = begin(container); it != end(container); ++it)
@@ -237,7 +281,7 @@ TEST_CASE("zero")
     SECTION("vector of ints")
     {
         std::vector<int> numbers{1, 2, 3, 4};
-        zero(numbers);
+        REQUIRE(zero(numbers) == Implementation::Optimized);
 
         REQUIRE(numbers == std::vector{0, 0, 0, 0});
     }
@@ -245,24 +289,23 @@ TEST_CASE("zero")
     SECTION("vector of bool")
     {
         std::vector<bool> flags{true, false, false, true, true};
-        zero(flags);
+        REQUIRE(zero(flags) == Implementation::Generic);
 
         REQUIRE(flags == std::vector<bool>{false, false, false, false, false});
     }
 
     SECTION("array of chars")
     {
-        std::array buffer = {1, 2, 3, 4};
-        zero(buffer);
+        uint8_t buffer[] = {1, 2, 3, 4};
+        REQUIRE(zero(buffer) == Implementation::Optimized);
 
-        REQUIRE(std::ranges::all_of(buffer, [](char b) { return b == 0; }));
+        REQUIRE(std::ranges::all_of(buffer, [](auto b) { return b == 0; }));
     }
 
     SECTION("list of strings")
     {
         std::list<std::string> words = { "one", "two", "three" };
-
-        zero(words);
+        REQUIRE(zero(words) == Implementation::Generic);
 
         REQUIRE(words == std::list{""s, ""s, ""s});
     }
